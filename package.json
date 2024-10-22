@@ -2,11 +2,11 @@
   "name": "musicapp",
   "version": "1.0.0",
   "description": "app de prueba",
-  "main": "src/index.js",
+  "main": "app/index.js",
   "type": "module",
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "node --watch src/index.js",
+    "start": "node app/index.js",
+    "dev": "node --watch app/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "estefania osses vera",
