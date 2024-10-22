@@ -2,9 +2,10 @@
   "name": "musicapp",
   "version": "1.0.0",
   "description": "app de prueba",
-  "main": "index.js",
+  "main": "src/index.js",
   "type": "module",
   "scripts": {
+    "start": "node server.js",
     "dev": "node --watch src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
