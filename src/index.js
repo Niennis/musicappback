@@ -3,7 +3,7 @@ import routes from './routes/routes.js'
 import cors from 'cors';
 import 'dotenv/config';
 
-const PORT = 3020
+const PORT = process.env.PORT
 
 const app = express()
 app.use(cors())
