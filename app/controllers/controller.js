@@ -81,9 +81,8 @@ export const favoritos = async (req, res) => {
   })
 
   myCache.set(nombre_banda, tracks)
-  res.send('Datos actualizados')
 
-
+  return res.json({ data: 'success', source: 'api' })
 }
 
 
