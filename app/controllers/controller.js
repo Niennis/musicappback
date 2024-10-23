@@ -2,22 +2,22 @@ import NodeCache from 'node-cache';
 const myCache = new NodeCache({ stdTTL: 100, checkperiod: 3600 }); // TTL en segundos
 
 export const searchTracks = async (req, res) => {
-  const { name } = req.query
-  const { usuario } = req.body
+  const { name, usuario } = req.query
 
   let tracksByUser;
 
   if (!name) res.status(400).json({ error: 'El parámetro de búsqueda es requerido' });
   if (usuario) tracksByUser = myCache.get(usuario)
-
   const cachedData = myCache.get(name);
 
-  if (cachedData && usuario) {
+  if (cachedData && usuario && tracksByUser) {
     const updatedCache = cachedData.map(itemA => {
       const itemB = tracksByUser.find(itemB => itemB.cancion_id === itemA.cancion_id)
       return itemB ? itemB : itemA
     })
     res.json({ data: updatedCache, source: 'cache' })
+  } else if (cachedData && usuario && !tracksByUser) {
+    return res.json({ data: cachedData, source: 'cache' })
   } else if (cachedData && !usuario) {
     return res.json({ data: cachedData, source: 'cache' })
   } else {
@@ -67,20 +67,35 @@ export const favoritos = async (req, res) => {
   const { nombre_banda, cancion_id, usuario, ranking } = req.body
   if (!nombre_banda || !cancion_id || !usuario || !ranking) res.status(400).json({ error: 'El parámetro de búsqueda es requerido' });
 
-  const cachedData = myCache.get(usuario);
-  if (cachedData) res.json({ data: cachedData, source: 'cache' })
+  const favouriteObj = {
+    nombre_banda,
+    cancion_id,
+    usuario,
+    ranking
+  }
 
-  let tracks = myCache.get(nombre_banda)
-  console.log('TRACKS', tracks);
+  const cachedByUser = myCache.get(usuario);
+  console.log('cachedByUser', cachedByUser)
+  // if (cachedData) res.json({ data: cachedData, source: 'cache' })
 
-  tracks = tracks.canciones.map(track => {
+  const tracksByBand = myCache.get(nombre_banda)
+  // console.log('TRACKS', tracksByBand);
+
+  const updatedTracks = tracksByBand.canciones.map(track => {
     if (track.cancion_id === parseInt(cancion_id)) {
       return { ...track, ranking: '5/5' }
     }
     return track
   })
 
-  myCache.set(nombre_banda, tracks)
+  const addUpdatedTracks = {...tracksByBand, canciones: updatedTracks}
+
+  const updateFavs = cachedByUser ? cachedByUser.concat([favouriteObj]) : [favouriteObj]
+
+  console.log('updateFavs', updateFavs)
+
+  myCache.set(usuario, updateFavs)
+  myCache.set(nombre_banda, addUpdatedTracks)
 
   return res.json({ data: 'success', source: 'api' })
 }
