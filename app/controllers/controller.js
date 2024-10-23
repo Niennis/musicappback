@@ -1,12 +1,14 @@
 import NodeCache from 'node-cache';
-const myCache = new NodeCache({ stdTTL: 100, checkperiod: 3600 }); // TTL en segundos
+const myCache = new NodeCache({ stdTTL: 100, checkperiod: 3600 });
 
 export const searchTracks = async (req, res) => {
   const { name, usuario } = req.query
 
   let tracksByUser;
 
-  if (!name) res.status(400).json({ error: 'El parámetro de búsqueda es requerido' });
+  if (!name) {
+    return res.status(400).json({ error: 'El parámetro de búsqueda es requerido' });
+  }
   if (usuario) tracksByUser = myCache.get(usuario)
   const cachedData = myCache.get(name);
 
@@ -76,10 +78,8 @@ export const favoritos = async (req, res) => {
 
   const cachedByUser = myCache.get(usuario);
   console.log('cachedByUser', cachedByUser)
-  // if (cachedData) res.json({ data: cachedData, source: 'cache' })
 
   const tracksByBand = myCache.get(nombre_banda)
-  // console.log('TRACKS', tracksByBand);
 
   const updatedTracks = tracksByBand.canciones.map(track => {
     if (track.cancion_id === parseInt(cancion_id)) {
@@ -88,7 +88,7 @@ export const favoritos = async (req, res) => {
     return track
   })
 
-  const addUpdatedTracks = {...tracksByBand, canciones: updatedTracks}
+  const addUpdatedTracks = { ...tracksByBand, canciones: updatedTracks }
 
   const updateFavs = cachedByUser ? cachedByUser.concat([favouriteObj]) : [favouriteObj]
 
